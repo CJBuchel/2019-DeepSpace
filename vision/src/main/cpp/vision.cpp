@@ -27,9 +27,13 @@ float width_offset;
 float width_goal = 320;
 float height_goal = 240;
 
-cs::UsbCamera cam{"USBCam", 1};
+cs::UsbCamera cam{"USBCam", 0};
+cs::UsbCamera cam1{"USBCam1", 1};
 cs::CvSink sink{"USB"};
 auto video_mode = cam.GetVideoMode();
+auto video_mode = cam1.GetVideoMode();
+cam.SetExposureManual(-100);
+cam1.SetExposureManual(100);
 cv::Mat drawing;
 cv::Mat green_hue_image;
 
@@ -77,8 +81,9 @@ void curtin_frc_vision::process() {
 
 
 		
-		// Threshold the HSV image, keep only the green pixels
+		// Threshold the HSV image, keep only the green pixels (RetroTape)
 		cv::inRange(img_HSV, cv::Scalar(35, 100, 30), cv::Scalar(78, 255, 255), green_hue_image);
+		cv::inRange(img_HSV, cv::Scalar(, 100, 100))
 
 
 		//========================================================================================================
