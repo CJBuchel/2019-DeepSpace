@@ -335,7 +335,7 @@ void curtin_frc_vision::process() {
 				if (leftmost > -1) {
 					targets.push_back((centres[i]+centres[leftmost])/2); //adds the Points2f position of each target to a vector
 					distances.push_back(200/(heights[i]+heights[leftmost])); //adds the estimated distance to each target. Calibrate by changing the number.
-					float widthAdjust = 0.01 * distances[distances.size() - 1] * abs(centres[i].x - centres[leftmost].x); //Calibrate distance, then adjust the first number until robot facing target gives 0 degrees.
+					float widthAdjust = 0.0015 * distances[distances.size() - 1] * abs(centres[i].x - centres[leftmost].x); //Calibrate distance, then adjust the first number until robot facing target gives 0 degrees.
 					if (widthAdjust > 1.0) {
 						widthAdjust = 1.0;
 					}
