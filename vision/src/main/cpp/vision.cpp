@@ -39,9 +39,9 @@ cv::Mat orange_hue_image;
 
 // Target vectors
 vector<cv::Point2f> centres;
+vector<cv::Point2f> targets;
 vector<bool> lefts;
 vector<bool> rights;
-vector<cv::Point2f> targets;
 vector<float> angles;
 vector<float> heights;
 vector<float> distances;
@@ -265,12 +265,25 @@ void curtin_frc_vision::process() {
 			
 			cv::RotatedRect rotatedRect = cv::minAreaRect(contours[i]);
 
-			float angle = rotatedRect.angle;
-
 			cv::Point2f centre = rotatedRect.center;
 
 			cv::Point2f rectPoints[4];
 			rotatedRect.points(rectPoints);
+
+			float angle;
+
+			//I got this code from StackOverFlow, so it's not my fault if it breaks
+			cv::Point2f edge1 = cv::Vec2f(rectPoints[1].x, rectPoints[1].y) - cv::Vec2f(rectPoints[0].x, rectPoints[0].y);
+      cv::Point2f edge2 = cv::Vec2f(rectPoints[2].x, rectPoints[2].y) - cv::Vec2f(rectPoints[1].x, rectPoints[1].y);
+
+      cv::Point2f usedEdge = edge1;
+      if(cv::norm(edge2) > cv::norm(edge1))
+      	usedEdge = edge2;
+
+      cv::Point2f reference = cv::Vec2f(1,0); // horizontal edge
+
+      angle = 180.0f/CV_PI * acos((reference.x*usedEdge.x + reference.y*usedEdge.y) / (cv::norm(reference) *cv::norm(usedEdge)));
+			//end StackOverFlow code
 
 			float min = rectPoints[0].y;
 			float max = rectPoints[0].y;
@@ -289,10 +302,10 @@ void curtin_frc_vision::process() {
 			centres.push_back(centre);
 			heights.push_back(height);
 
-			if (angle > 10 && angle < 19) {
+			if (angle > 110 && angle < 119) { //angle range for right classification
 				rights.push_back(true);
 				lefts.push_back(false);
-			} else if (angle < -10 && angle > -19) {
+			} else if (angle < 80 && angle > 71) { //angle range for left classification
 				rights.push_back(false);
 				lefts.push_back(true);
 			} else {
