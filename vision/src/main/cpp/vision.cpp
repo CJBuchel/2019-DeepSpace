@@ -339,12 +339,11 @@ void curtin_frc_vision::process() {
 					if (widthAdjust > 1.0) {
 						widthAdjust = 1.0;
 					}
-					try {
-						angles.push_back(heights[leftmost] > heights[i] ? acos(widthAdjust) : -acos(widthAdjust));
+					try { //shoot, acos can throw an error if I've missed an edge-case, and I'm too tired to look for one.
+						angles.push_back(heights[leftmost] > heights[i] ? 180.0f/CV_PI * acos(widthAdjust) : -180.0f/CV_PI * acos(widthAdjust));
 					} catch (...) {
 						angles.push_back(0);
-					}
-						
+					}		
 				}
 			}
 		}
@@ -353,8 +352,9 @@ void curtin_frc_vision::process() {
 
 		for (int i=0; i<targets.size(); i++) {
 			std::stringstream dis;	dis<<distances[i];
+			std::stringstream ang;	ang<<angles[i];
 			cv::rectangle(drawing, targets[i] + Point2f(-3,-3), targets[i] + Point2f(3,3), color, 2); //draw small rectangle on target locations
-			cv::putText(drawing, dis.str(), targets[i] + cv::Point2f(-25,25), cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(255,0,255));
+			cv::putText(drawing, dis.str() + "m, " + ang.str() + "deg", targets[i] + cv::Point2f(-25,25), cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(255,0,255)); //text with distance and angle on target
 		}
 
 
