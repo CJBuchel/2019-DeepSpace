@@ -12,11 +12,12 @@
 
 #include <cameraserver/CameraServer.h>
 #include <cscore.h>
+#include <thread>
 
 // need to get videoModeTape and ball, and imgOriginalTape and ball
 
-cs::CvSource outputTape = frc::CameraServer::GetInstance()->PutVideo("USB Camera", Capture::GetInstance()->GetVideoModeTape.width, Capture::GetInstance()->GetVideoModeTape.height);
-cs::CvSource outputBall = frc::CameraServer::GetInstance()->PutVideo("USB Camera", Capture::GetInstance()->GetVideoModeBall.width, Capture::GetInstance()->GetVideoModeBall.height);
+cs::CvSource outputTape = frc::CameraServer::GetInstance()->PutVideo("USB Camera", Capture::GetInstance()->GetVideoModeTape().width, Capture::GetInstance()->GetVideoModeTape().height);
+cs::CvSource outputBall = frc::CameraServer::GetInstance()->PutVideo("USB Camera", Capture::GetInstance()->GetVideoModeBall().width, Capture::GetInstance()->GetVideoModeBall().height);
 
 void Run() {
   //imshow("HSV Image", imgHSV);
@@ -33,5 +34,6 @@ void Run() {
 }
 
 void Start() {
-
+	std::thread displayThread(&Run);
+  displayThread.detach();
 }
