@@ -1,4 +1,6 @@
-#include "vision.h"
+#include "capture.h"
+#include "process.h"
+
 #include <opencv2/opencv.hpp>
 #include "opencv2/objdetect.hpp"
 #include "opencv2/highgui.hpp"
@@ -21,6 +23,33 @@ float width_offset;
 float width_goal = 320;
 float height_goal = 240;
 
+// Target vectors
+vector<cv::Point2f> centres;
+vector<bool> lefts;
+vector<bool> rights;
+vector<cv::Point2f> targets;
+vector<float> angles;
+vector<float> heights;
+vector<float> distances;
+
+cv::Mat drawing;
+cv::Mat greenHueImage;
+cv::Mat orangeHueImage;
+
+static Process *process;
+
+static Process *GetInstance() { // will this work ? are there multiple instances ?
+  if (process == NULL) {
+    process = new Process();
+  }
+  return process;
+}
+
+// Getters
+cv::Mat GetDrawing() { return drawing; };
+cv::Mat GetGreenHueImage() { return greenHueImage; };
+cv::Mat GetOrangeHueImage() { return orangeHueImage; };
+
 // these need to be passed to display
 // drawing, greenHueImage (potentially orangeHueImage ?)
 
@@ -34,8 +63,8 @@ void Run() {
   //========================================================================================================
 
   // Threshold the HSV image, keep only the green pixels (RetroTape)
-  cv::inRange(imgHSVTape, cv::Scalar(35, 100, 30), cv::Scalar(78, 255, 255), greenHueImage); // get img via getter
-  cv::inRange(imgHSVBall, cv::Scalar(10, 100, 100), cv::Scalar(20, 255, 255), orangeHueImage);
+  cv::inRange(Capture::GetInstance()->GetImgHSVTape(), cv::Scalar(35, 100, 30), cv::Scalar(78, 255, 255), greenHueImage); // get img via getter
+  cv::inRange(Capture::GetInstance()->GetImgHSVBall(), cv::Scalar(10, 100, 100), cv::Scalar(20, 255, 255), orangeHueImage);
 
   //========================================================================================================
   //--------------------------------------------------------------------------------------------------------
@@ -96,7 +125,7 @@ void Run() {
     }
   }
   // Filters size for Ball
-  findContours(orange_hue_image, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
+  findContours(orangeHueImage, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
   for (int i = 0; i < contours.size(); i++) {
     vector<Point> contour = contours[i];
     Rect r = boundingRect(contour);
@@ -132,7 +161,7 @@ void Run() {
   cv::Mat thresholdBall_output;
   vector<Vec4i> hierarchy;
   threshold( greenHueImage, thresholdTape_output, thresh, 255, THRESH_BINARY );
-  threshold( orange_hue_image, thresholdBall_output, thresh, 255, THRESH_BINARY );
+  threshold( orangeHueImage, thresholdBall_output, thresh, 255, THRESH_BINARY );
   //findContours( threshold_output, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0) );
   //findContours(greenHueImage, contours, hierarchy, RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
 

@@ -13,12 +13,14 @@
 #include <cameraserver/CameraServer.h>
 #include <cscore.h>
 #include <thread>
+#include <mutex>
 
 cs::UsbCamera camTapeAlign{"USBCam", 0};
 cs::UsbCamera camBallAlign{"USBCam1", 1};
 cs::CvSink sink{"USB"};
 auto videoModeTape = camTapeAlign.GetVideoMode();
 auto videoModeBall = camBallAlign.GetVideoMode();
+std::mutex classMutex; // is a class-level mutex ok, or do I need one for each
 
 // The capMat is what comes from the camera, and the outMat is what goes to the dashboard. Note: 
 // the height - width order is reversed here (height first, width second), unlike other parts.
@@ -37,14 +39,20 @@ static Capture *GetInstance() { // will this work ? are there multiple instances
   return capture;
 }
 
-// Getters
+// Getters (might still need to mutex/atomic these to prevent writing while reading (essentially vsync)) *
 
 auto GetVideoModeTape() { return videoModeTape; }
 auto GetVideoModeBall() { return videoModeBall; }
 cv::Mat GetImgOriginalTape() { return imgOriginalTape; }
 cv::Mat GetImgOriginalBall() { return imgOriginalBall; }
-cv::Mat GetImgHSVTape() { return imgHSVTape; }
-cv::Mat GetImgHSVBall() { return imgHSVBall; }
+cv::Mat GetImgHSVTape() {
+  std::lock_guard<std::mutex> lock(classMutex);
+  return imgHSVTape;
+}
+cv::Mat GetImgHSVBall() {
+  std::lock_guard<std::mutex> lock(classMutex);
+  return imgHSVTape;
+}
 
 // Main methods
 
@@ -66,11 +74,11 @@ void Init() {
 void Run() {
 	// Grab a frame when possible, then convert to grayscale and send to the dashboard.
 	if (sink.GrabFrame(imgOriginalTape) != 0) {
-		cv::cvtColor(imgOriginalTape, imgHSVTape, cv::COLOR_RGB2HSV);
+		cv::cvtColor(imgOriginalTape, Capture::GetInstance()->GetImgHSVTape(), cv::COLOR_RGB2HSV); // Use mutex getter
   }
 
 	if (sink.GrabFrame(imgOriginalBall) != 0) {
-		cv::cvtColor(imgOriginalBall, imgHSVBall, cv::COLOR_RGB2HSV);
+		cv::cvtColor(imgOriginalBall, Capture::GetInstance()->GetImgHSVBall(), cv::COLOR_RGB2HSV);
   }
 }
 

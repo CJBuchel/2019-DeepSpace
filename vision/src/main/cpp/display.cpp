@@ -1,8 +1,10 @@
+#include "capture.h"
+#include "process.h"
+#include "display.h"
+
 #include <opencv2/opencv.hpp>
 #include "opencv2/objdetect.hpp"
 #include "opencv2/highgui.hpp"
-#include "capture.h"
-
 #include "opencv2/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -23,8 +25,9 @@ void Run() {
 	cv::imshow("OriginalTape", Capture::GetInstance()->GetImgOriginalTape()); // Shows the original image
 	cv::imshow("OriginalBall", Capture::GetInstance()->GetImgOriginalBall());
 	//imshow("Track Output", greenHueImage); // Shows the Threhold Image
-	cv::imshow("Threshold Image", greenHueImage);
+	cv::imshow("Threshold Image", Process::GetInstance()->GetGreenHueImage());
 	
+	cv::Mat drawing = Process::GetInstance()->GetDrawing(); // Error workaround
 	outputTape.PutFrame(drawing);
 	outputBall.PutFrame(drawing);
 }
