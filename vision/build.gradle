@@ -12,7 +12,7 @@ deploy {
         // Change this if you've changed the target hostname, username or password.
         ssh {
           address = 'curtinvision.local'
-          // address = '192.168.0.100'
+          // address = '10.47.88.155'
           user = 'vision'
           password = 'curtinfrc'
         }

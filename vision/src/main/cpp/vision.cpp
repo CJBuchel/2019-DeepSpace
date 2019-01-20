@@ -44,9 +44,12 @@ vector<float> angles;
 vector<float> heights;
 vector<float> distances;
 
-void curtin_frc_vision::run() {
+//void curtin_frc_vision::run() {
+	//frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
+//}
 
-	cs::CvSource outputTape;
+void curtin_frc_vision::run() {
+	cs::CvSource outputBall;
 
 	cs::UsbCamera cam{"USBCam", 0};
 	cs::CvSink sink{"USB"};
@@ -54,21 +57,22 @@ void curtin_frc_vision::run() {
 
 	// The camera defaults to a lower resolution, but you can choose any compatible resolution here.
 	cam.SetResolution(640, 480);
+	cam.SetExposureManual(-100);
 
 	auto video_mode = cam.GetVideoMode();
 	std::cout << "Width: " << video_mode.width << " Height: " << video_mode.height << std::endl;
-
 	// This lets us see the camera output on the robot dashboard. We give it a name, and a width and height.
 	cs::CvSource output = frc::CameraServer::GetInstance()->PutVideo("USB Camera", video_mode.width, video_mode.height);
 
 	// The capMat is what comes from the camera, and the outMat is what goes to the dashboard. Note: 
 	// the height - width order is reversed here (height first, width second), unlike other parts.
+	cv::Mat imgTrack{video_mode.height, video_mode.width, CV_8UC3};
 	cv::Mat imgOriginal{video_mode.height, video_mode.width, CV_8UC3};
-	cv::Mat imgHSVTape{video_mode.height, video_mode.width, CV_8UC3};
-	cv::Mat drawing{video_mode.height, video_mode.width, CV_8UC3};
-	cv::Mat greenHueImage{video_mode.height, video_mode.width, CV_8UC3};
-	cv::Mat cannyTape_output{video_mode.height, video_mode.width, CV_8UC3};
-	cv::Mat thresholdTape_output{video_mode.height, video_mode.width, CV_8UC3};
+	//cv::Mat imgHSVBall{video_mode.height, video_mode.width, CV_8UC3};
+	//cv::Mat imgTrack{video_mode.height, video_mode.width, CV_8UC3};
+	//cv::Mat greenHueImage{video_mode.height, video_mode.width, CV_8UC3};
+	//cv::Mat imgTrack{video_mode.height, video_mode.width, CV_8UC3};
+	//cv::Mat imgTrack{video_mode.height, video_mode.width, CV_8UC3}; 
 
   while(true) {
 	  	if(sink.GrabFrame(imgOriginal) != 0){
@@ -78,9 +82,8 @@ void curtin_frc_vision::run() {
 			//--------------------------------------------------------------------------------------------------------
 			//========================================================================================================
 
-			// Threshold the HSV image, keep only the green pixels (RetroTape)
-			sink.GrabFrame(imgHSVTape);
-			cv::cvtColor(imgOriginal, imgHSVTape, cv::COLOR_RGB2HSV);
+			// Threshold the HSV image, keep only the green pixels (RetroBall)
+			cv::cvtColor(imgOriginal, imgTrack, cv::COLOR_RGB2HSV);
 			//========================================================================================================
 			//--------------------------------------------------------------------------------------------------------
 			//========================================================================================================
@@ -94,8 +97,8 @@ void curtin_frc_vision::run() {
 				
 			//kinectCondition t_condition;
 			vector<vector<Point> > contours;
-			vector<vector<Point> > filteredContoursTape;
-			vector<vector<Point> > filteredHullsTape;
+			vector<vector<Point> > filteredContoursBall;
+			vector<vector<Point> > filteredHullsBall;
 			vector<Rect> ir_rects;
 			int active_contour;
 			Scalar hsl_low, hsl_high;
@@ -109,9 +112,9 @@ void curtin_frc_vision::run() {
 
 			double largestArea = 0.0;
 			active_contour = -1;
-			// Filters size for Reflective Tape
-			cv::inRange(imgHSVTape, cv::Scalar(35, 100, 30), cv::Scalar(78, 255, 255), greenHueImage); // get img via getter
-			findContours(greenHueImage, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
+			// Filters size for Reflective Ball
+			cv::inRange(imgTrack, cv::Scalar(7, 100, 100), cv::Scalar(20, 255, 255), imgTrack); // get img via getter
+			findContours(imgTrack, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
 
 			for (int i = 0; i < contours.size(); i++) {
 				vector<Point> contour = contours[i];
@@ -126,10 +129,10 @@ void curtin_frc_vision::run() {
 					if (solidity < 60.0) {
 					if (area > largestArea) {
 						largestArea = area;
-						active_contour = filteredContoursTape.size();
+						active_contour = filteredContoursBall.size();
 					}
-					filteredContoursTape.push_back(contour);
-					filteredHullsTape.push_back(hull);
+					filteredContoursBall.push_back(contour);
+					filteredHullsBall.push_back(hull);
 					ir_rects.push_back(r);
 					}
 				}
@@ -137,51 +140,51 @@ void curtin_frc_vision::run() {
 
 
 			/// Detect edges using Canny
-			Canny(greenHueImage, cannyTape_output, thresh, thresh * 2);
+			Canny(imgTrack, imgTrack, thresh, thresh * 2);
 
 			/// Find contours
 			//vector<vector<Point> > contours;
 			vector<Vec4i> hierarchy;
-			threshold( greenHueImage, thresholdTape_output, thresh, 255, THRESH_BINARY );
+			threshold( imgTrack, imgTrack, thresh, 255, THRESH_BINARY );
 			//findContours( threshold_output, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0) );
 			//findContours(greenHueImage, contours, hierarchy, RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
 
-			// ----Tape
+			// ----Ball
 			/// Find the convex hull object for each contour
-			vector<vector<Point> >hullTape(filteredContoursTape.size());
-			for (size_t i = 0; i < filteredContoursTape.size(); i++) {
-				convexHull(filteredContoursTape[i], hullTape[i]);
+			vector<vector<Point> >hullBall(filteredContoursBall.size());
+			for (size_t i = 0; i < filteredContoursBall.size(); i++) {
+				convexHull(filteredContoursBall[i], hullBall[i]);
 			}
 
 			/// Draw filteredContours + hull results
-			drawing = Mat::zeros(cannyTape_output.size(), CV_8UC3);
-			vector<Rect> boundRectTape( filteredContoursTape.size() );
+			imgTrack = Mat::zeros(imgTrack.size(), CV_8UC3);
+			vector<Rect> boundRectBall( filteredContoursBall.size() );
 
 
-			for (size_t i = 0; i < filteredContoursTape.size(); i++) {
+			for (size_t i = 0; i < filteredContoursBall.size(); i++) {
 				Scalar color = Scalar(rng.uniform(0, 256), rng.uniform(0, 256), rng.uniform(0, 256));
-				drawContours(drawing, filteredContoursTape, (int)i, color);
-				drawContours(drawing, hullTape, (int)i, color);
+				drawContours(imgTrack, filteredContoursBall, (int)i, color);
+				drawContours(imgTrack, hullBall, (int)i, color);
 			}
 
 
-			for (size_t i = 0; i < filteredContoursTape.size(); i++) {
+			for (size_t i = 0; i < filteredContoursBall.size(); i++) {
 				Scalar color = Scalar(rng.uniform(0, 256), rng.uniform(0, 256), rng.uniform(0, 256));
-				drawContours(drawing, filteredContoursTape, (int)i, color);
-				drawContours(drawing, hullTape, (int)i, color);
+				drawContours(imgTrack, filteredContoursBall, (int)i, color);
+				drawContours(imgTrack, hullBall, (int)i, color);
 			}
 
 			//________________________________________________________________________________________________________
 			//________________________________________________________________________________________________________
 
-
+			/*
 			//Get RotatedRectangles 
 			centres.clear(); //clear the vectors
 			heights.clear();
 			lefts.clear();
 			rights.clear();
 
-			for (int i=0; i<filteredContoursTape.size(); i++) {
+			for (int i=0; i<filteredContoursBall.size(); i++) {
 		
 				cv::RotatedRect rotatedRect = cv::minAreaRect(contours[i]);
 
@@ -224,7 +227,7 @@ void curtin_frc_vision::run() {
 
 				std::stringstream ss;	ss<<angle; //magic shit, idk
 				std::stringstream hei;	hei<<height;	
-				cv::putText(drawing, ss.str() + " height:" + hei.str(), centre + cv::Point2f(-25,25), cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(255,0,255)); //label the angle on each rectangle
+				cv::putText(imgTrack, ss.str() + " height:" + hei.str(), centre + cv::Point2f(-25,25), cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(255,0,255)); //label the angle on each rectangle
 			}
 
 			int leftmost = -1;
@@ -233,9 +236,9 @@ void curtin_frc_vision::run() {
 			angles.clear();
 			distances.clear();
 
-			for (int i=0; i<filteredContoursTape.size(); i++) {
+			for (int i=0; i<filteredContoursBall.size(); i++) {
 				if (lefts[i]) { //checks if current iteration is a left
-					for (int j=0; j<filteredContoursTape.size(); j++) {
+					for (int j=0; j<filteredContoursBall.size(); j++) {
 						if (rights[j] && centres[j].x < leftPos && centres[j].x > centres[i].x) { //checks if nested iteration is a right and left of the last checked one
 							leftmost = j;
 						}
@@ -252,78 +255,78 @@ void curtin_frc_vision::run() {
 
 			for (int i=0; i<targets.size(); i++) {
 				std::stringstream dis;	dis<<distances[i];
-				cv::rectangle(drawing, targets[i] + Point2f(-3,-3), targets[i] + Point2f(3,3), color, 2); //draw small rectangle on target locations
-				cv::putText(drawing, dis.str(), targets[i] + cv::Point2f(-25,25), cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(255,0,255));
+				cv::rectangle(imgTrack, targets[i] + Point2f(-3,-3), targets[i] + Point2f(3,3), color, 2); //draw small rectangle on target locations
+				cv::putText(imgTrack, dis.str(), targets[i] + cv::Point2f(-25,25), cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(255,0,255));
 			}
 
-
+			*/
 			// Bounding Box Block, (Draws a border around the processed image)
 			//,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 
 			//vector<vector<Point> > contoursBox;
 
 			/// Detect edges using Threshold
-			threshold( greenHueImage, thresholdTape_output, thresh, 255, THRESH_BINARY );
+			threshold( imgTrack, imgTrack, thresh, 255, THRESH_BINARY );
 			/// Find contoursBox
 
 
 
-			/// Approximate contoursBox to polygons + get bounding rects and circles -------tape
-			vector<vector<Point> > hullTape_poly( hullTape.size() );
-			vector<Point2f>centerTape( hullTape.size() );
-			vector<float>radiusTape( hullTape.size() );
+			/// Approximate contoursBox to polygons + get bounding rects and circles -------Ball
+			vector<vector<Point> > hullBall_poly( hullBall.size() );
+			vector<Point2f>centerBall( hullBall.size() );
+			vector<float>radiusBall( hullBall.size() );
 
-			for( int i = 0; i < hullTape.size(); i++ ) { approxPolyDP( Mat(hullTape[i]), hullTape_poly[i], 3, true );
-				boundRectTape[i] = boundingRect( Mat(hullTape_poly[i]) );
-				minEnclosingCircle( (Mat)hullTape_poly[i], centerTape[i], radiusTape[i] );
+			for( int i = 0; i < hullBall.size(); i++ ) { approxPolyDP( Mat(hullBall[i]), hullBall_poly[i], 3, true );
+				boundRectBall[i] = boundingRect( Mat(hullBall_poly[i]) );
+				minEnclosingCircle( (Mat)hullBall_poly[i], centerBall[i], radiusBall[i] );
 			}
 
 
 			/// Draw polygonal contour + bonding rects + circles
-			for( int i = 0; i< hullTape.size(); i++ ) {
+			for( int i = 0; i< hullBall.size(); i++ ) {
 				Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
-				drawContours( drawing, hullTape_poly, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
-				bounding_rect=boundingRect(filteredContoursTape[i]); // Find the bounding rectangle for biggest contour
-				rectangle( drawing, boundRectTape[i].tl(), boundRectTape[i].br(), color, 2, 8, 0 );
-				circle( drawing, centerTape[i], (int)radiusTape[i], color, 2, 8, 0 );
+				drawContours( imgTrack, hullBall_poly, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
+				bounding_rect=boundingRect(filteredContoursBall[i]); // Find the bounding rectangle for biggest contour
+				rectangle( imgTrack, boundRectBall[i].tl(), boundRectBall[i].br(), color, 2, 8, 0 );
+				circle( imgTrack, centerBall[i], (int)radiusBall[i], color, 2, 8, 0 );
 			}
 
 
 			//_____________________Center Calcs______(Calculates the center from Border Box, And calculates X,Y Offset)_______ Ok.. it's suppose to calculate from borderbox, but not yet. using hull instead
 			// get the moments 
-			// -------Tape
+			// -------Ball
 
-			vector<Moments> muTape(hullTape_poly.size());
-			for( int i = 0; i<hullTape_poly.size(); i++ ) {
-				muTape[i] = moments( hullTape_poly[i], false );
+			vector<Moments> muBall(hullBall_poly.size());
+			for( int i = 0; i<hullBall_poly.size(); i++ ) {
+				muBall[i] = moments( hullBall_poly[i], false );
 			}
 
 			// get the centroid of figures.
-			vector<Point2f> mcTape(hullTape_poly.size());
-			for( int i = 0; i<hullTape_poly.size(); i++) {
-				mcTape[i] = Point2f( muTape[i].m10/muTape[i].m00 , muTape[i].m01/muTape[i].m00 );
+			vector<Point2f> mcBall(hullBall_poly.size());
+			for( int i = 0; i<hullBall_poly.size(); i++) {
+				mcBall[i] = Point2f( muBall[i].m10/muBall[i].m00 , muBall[i].m01/muBall[i].m00 );
 			}
 
 			// draw filteredContours
-			//Mat drawingcenter(canny_output.size(), CV_8UC3, Scalar(255,255,255));
+			//Mat imgTrackcenter(canny_output.size(), CV_8UC3, Scalar(255,255,255));
 
 
-			for( int i = 0; i<hullTape_poly.size(); i++ ) {
+			for( int i = 0; i<hullBall_poly.size(); i++ ) {
 				Scalar color = Scalar(167,151,0); // B G R values
-				//drawContours(drawing, hull_poly, i, color, 2, 8, hierarchy, 0, Point());
-				circle( drawing, mcTape[i], 4, color, -1, 8, 0 );
+				//drawContours(imgTrack, hull_poly, i, color, 2, 8, hierarchy, 0, Point());
+				circle( imgTrack, mcBall[i], 4, color, -1, 8, 0 );
 
-				// offsets from centerTape
-				Point centerTape = Point((mcTape[i].x), (mcTape[i].y));
-				width_offset = width_goal - centerTape.x;
-				height_offset = height_goal - centerTape.y;
-				cout << "Offset From CenterTape x,y =" << height_offset << "," << width_offset << endl; //The output values... are a bit strange, need to look into that
+				// offsets from centerBall
+				Point centerBall = Point((mcBall[i].x), (mcBall[i].y));
+				width_offset = width_goal - centerBall.x;
+				height_offset = height_goal - centerBall.y;
+				cout << "Offset From CenterBall x,y =" << height_offset << "," << width_offset << endl; //The output values... are a bit strange, need to look into that
 			}
 
 
 			// Grab a frame. If it's not an error (!= 0), convert it to grayscale and send it to the dashboard.
-			
-			output.PutFrame(imgOriginal);
+			//output.PutFrame(imgOriginal);
+			output.PutFrame(imgTrack);
 			cout << "Origin Image Processed" << endl;
   		}
 
