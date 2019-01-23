@@ -21,8 +21,8 @@ class Process : public Runnable {
 
   Process(Capture &capture);
   Capture &GetCapture();
-  void Process::CopyImgTrack(cv::Mat &imgTrack);
-  void Process::CopyImgOriginal(cv::Mat &imgOriginal);
+  void CopyImgTrack(cv::Mat &imgTrack);
+  void CopyImgOriginal(cv::Mat &imgOriginal);
  protected:
   std::mutex _classMutex;
   std::condition_variable _conVar;
