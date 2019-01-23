@@ -30,28 +30,28 @@ float width_goal = 320;
 float height_goal = 240;
 
 void BallProcessing::Init() {
+  std::cout << "BallProcessing Init Started" << std::endl;
   Process::Init();
+  std::cout << "BallProcessing Init Ended" << std::endl;
 }
 
 void BallProcessing::Periodic() {
+  std::cout << "BallProcessing Periodic Started" << std::endl;
+  
 
-
-  // Wait until Init() sends data
-  std::unique_lock<std::mutex> lk(_classMutex);
-  _conVar.wait(lk);
- 
-  // after the wait, we own the lock.
-  std::cout << "Worker thread is processing data\n";
- 
-  // Send data back to Init()
-  _processed = true;
-  std::cout << "Worker thread signals data processing completed\n";
- 
-  // Manual unlocking is done before notifying, to avoid waking up
-  // the waiting thread only to block again (see notify_one for details)
-  lk.unlock();
+  {
+    std::lock_guard<std::mutex> lk(_classMutex);
+    _ready = true;
+    std::cout << "main() signals data ready for processing\n";
+  }
   _conVar.notify_all();
-
+ 
+  // wait for the worker
+  {
+    std::unique_lock<std::mutex> lk(_classMutex);
+    _conVar.wait(lk);
+  }
+ 
 
 
   if (_capture.IsValidFrame()) {
@@ -176,5 +176,6 @@ void BallProcessing::Periodic() {
       height_offset = height_goal - centerBall.y;
       std::cout << "Offset From CenterBall x,y =" << height_offset << "," << width_offset << std::endl;
     }
+    std::cout << "BallProcessing Periodic Ended" << std::endl;
   }
 }

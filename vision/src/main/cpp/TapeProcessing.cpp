@@ -21,14 +21,17 @@ using namespace cv;
 using namespace std;
 
 void TapeProcessing::Init() {
-
+	std::cout << "TapeProcessing Init Started" << std::endl;
+	std::cout << "TapeProcessing Init Ended" << std::endl;
 }
 
 void TapeProcessing::Periodic() {
+  std::cout << "TapeProcessing Periodic Started" << std::endl;
 	/* if (_capture.IsValidFrame()) {
 		cv::Mat bgrThreshInput = _capture.CopyCaptureMat();
 		double bgrThreshBlue[] = {0.0, 127.0};
 		double bgrThreshGreen[] = {200.0, 255.0};		//thresholding values for finding green
 		double bgrThreshRed[] = {0.0, 127.0};
 	} */
+  std::cout << "TapeProcessing Periodic Ended" << std::endl;
 }

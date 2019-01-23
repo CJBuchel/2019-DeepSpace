@@ -36,6 +36,7 @@ void Capture::CopyCaptureMat(cv::Mat &captureMat) {
 
 
 void Capture::Init() {
+  std::cout << "Capture Init Started" << std::endl;
 
   _sink.SetSource(_cam);
   _cam.SetExposureManual(-100);
@@ -48,11 +49,14 @@ void Capture::Init() {
   std::cout << "Width: " << _videoMode.width << " Height: " << _videoMode.height << std::endl;
 
   _captureMat = cv::Mat::zeros(_videoMode.height, _videoMode.width, CV_8UC3);
+  std::cout << "Capture Init Ended" << std::endl;
 }
 
 void Capture::Periodic() {
+  std::cout << "Capture Periodic Started" << std::endl;
   code = _sink.GrabFrame(_captureMat);
   _isValid = code == 0;
+  std::cout << "Capture Periodic Ended" << std::endl;
 }
 
 bool Capture::IsValidFrame() {
