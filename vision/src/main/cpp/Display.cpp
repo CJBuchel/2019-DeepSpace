@@ -27,7 +27,7 @@ void Display::Init() {
 
 void Display::Periodic() {
   Capture &capture = _process.GetCapture();
-  capture.CopyImgTrack(_imgTrack);
+  _process.CopyImgTrack(_imgTrack);
   if(capture.IsValidFrame()) {
     // Grab a frame. If it's not an error (!= 0), convert it to grayscale and send it to the dashboard.
     _output.PutFrame(_imgTrack);

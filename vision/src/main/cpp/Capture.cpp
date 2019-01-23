@@ -33,15 +33,7 @@ void Capture::CopyCaptureMat(cv::Mat &captureMat) {
   _captureMat.copyTo(captureMat);
 }
 
-void Capture::CopyImgTrack(cv::Mat &imgTrack) {
-  std::lock_guard<std::mutex> lock(_classMutex);
-  _imgTrack.copyTo(imgTrack);
-}
 
-void Capture::CopyImgOriginal(cv::Mat &imgOriginal) {
-  std::lock_guard<std::mutex> lock(_classMutex);
-  _imgOriginal.copyTo(imgOriginal);
-}
 
 void Capture::Init() {
 
@@ -56,8 +48,6 @@ void Capture::Init() {
   std::cout << "Width: " << _videoMode.width << " Height: " << _videoMode.height << std::endl;
 
   _captureMat = cv::Mat::zeros(_videoMode.height, _videoMode.width, CV_8UC3);
-  _imgTrack = cv::Mat{_videoMode.height, _videoMode.width, CV_8UC3};
-	_imgOriginal = cv::Mat{_videoMode.height, _videoMode.width, CV_8UC3};
 }
 
 void Capture::Periodic() {

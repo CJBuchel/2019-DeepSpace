@@ -29,6 +29,16 @@ Capture &Process::GetCapture() {
     return _capture;
 }
 
+void Process::CopyImgTrack(cv::Mat &imgTrack) {
+  std::lock_guard<std::mutex> lock(_classMutex);
+  _imgTrack.copyTo(imgTrack);
+}
+
+void Process::CopyImgOriginal(cv::Mat &imgOriginal) {
+  std::lock_guard<std::mutex> lock(_classMutex);
+  _imgOriginal.copyTo(imgOriginal);
+}
+
 
 
 void Process::Init() {
