@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
   BallProcessing ballProcess{capture};
   Display display{tapeProcess};
   
-  vision.Run(capture);
+  vision.Run(capture);  
   vision.Run(tapeProcess);
   vision.Run(ballProcess);
   vision.Run(display);

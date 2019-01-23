@@ -1,6 +1,4 @@
 #include "Display.h"
-#include "Capture.h"
-#include "TapeProcessing.h"
 
 #include <opencv2/opencv.hpp>
 #include "opencv2/objdetect.hpp"
@@ -13,21 +11,31 @@
 #include <iostream>
 
 #include <cameraserver/CameraServer.h>
-#include <networktables/NetworkTableInstance.h>
 #include <cscore.h>
 
 #include "devices/kinect.h"
 
-using namespace cv;
-using namespace std;
-
 Display::Display(Process &process) : _process(process) {}
 
 void Display::Init() {
-    
+  Capture &capture = _process.GetCapture();
+  _videoMode = capture.GetVideoMode();
+
+  // Set up output
+  _output = frc::CameraServer::GetInstance()->PutVideo("USB Camera", _videoMode.width, _videoMode.height);
 }
 
 void Display::Periodic() {
-
+  Capture &capture = _process.GetCapture();
+  capture.CopyImgTrack(_imgTrack);
+  if(capture.IsValidFrame()) {
+    // Grab a frame. If it's not an error (!= 0), convert it to grayscale and send it to the dashboard.
+    _output.PutFrame(_imgTrack);
+		std::cout << "Origin Image Processed" << std::endl;
+    // other output if needed
+  }
+  else {
+    std::cout << "Origin Image Not Available" << std::endl;
+  }
 }
 
