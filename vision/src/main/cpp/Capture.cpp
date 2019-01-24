@@ -1,4 +1,6 @@
 #include "Capture.h"
+#include "Process.h"
+//#include "Lock.h"
 
 #include <opencv2/opencv.hpp>
 #include "opencv2/objdetect.hpp"
@@ -8,6 +10,8 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include <stdio.h>
 #include <iostream>
+#include <mutex>
+#include <condition_variable>
 
 #include <cameraserver/CameraServer.h>
 #include <networktables/NetworkTableInstance.h>
@@ -40,15 +44,17 @@ void Capture::Init() {
 
   _sink.SetSource(_cam);
   _cam.SetExposureManual(-100);
-
   // The camera defaults to a lower resolution, but you can choose any compatible resolution here.
   _cam.SetResolution(640, 480);
-
   //auto _videoMode = _cam.GetVideoMode();
   _videoMode = _cam.GetVideoMode();
   std::cout << "Width: " << _videoMode.width << " Height: " << _videoMode.height << std::endl;
-
   _captureMat = cv::Mat::zeros(_videoMode.height, _videoMode.width, CV_8UC3);
+
+  std::unique_lock<std::mutex> lock(classMutexLocking);
+  _captureReady = true;
+  condVar.notify_all();
+
   std::cout << "Capture Init Ended" << std::endl;
 }
 
@@ -69,4 +75,8 @@ int Capture::GetPort() {
 
 int Capture::GetCode() {
   return code;
+}
+
+bool Capture::GetReady() {
+  return _captureReady;
 }

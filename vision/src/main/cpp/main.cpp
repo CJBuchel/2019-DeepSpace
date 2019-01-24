@@ -5,7 +5,12 @@
 #include "Display.h"
 #include <iostream>
 #include <list>
+#include <condition_variable>
 #include <networktables/NetworkTableInstance.h>
+
+std::mutex classMutexLocking;
+std::condition_variable condVar;
+
 
 #ifndef RUNNING_FRC_TESTS
 int main(int argc, char **argv) {

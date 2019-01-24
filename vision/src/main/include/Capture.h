@@ -4,6 +4,7 @@
 #include <cscore.h>
 #include <mutex>
 #include <thread>
+#include <condition_variable>
 
 #include "Runnable.h"
 
@@ -18,6 +19,7 @@ class Capture : public Runnable {
   void CopyCaptureMat(cv::Mat &captureMat);
   bool IsValidFrame();
   int GetCode();
+  bool GetReady();
 
  private:
   std::mutex _classMutex;
@@ -28,4 +30,8 @@ class Capture : public Runnable {
   bool _isValid = false;
   int camPort;
   int code;
+
+  bool _captureReady = false;
+  bool _processReady = false;
+  
 };

@@ -1,6 +1,7 @@
 #include "Display.h"
 #include "Capture.h"
 #include "BallProcessing.h"
+//#include "Lock.h"
 
 #include <opencv2/opencv.hpp>
 #include "opencv2/objdetect.hpp"
@@ -37,22 +38,6 @@ void BallProcessing::Init() {
 
 void BallProcessing::Periodic() {
   std::cout << "BallProcessing Periodic Started" << std::endl;
-  
-
-  {
-    std::lock_guard<std::mutex> lk(_classMutex);
-    _ready = true;
-    std::cout << "main() signals data ready for processing\n";
-  }
-  _conVar.notify_all();
- 
-  // wait for the worker
-  {
-    std::unique_lock<std::mutex> lk(_classMutex);
-    _conVar.wait(lk);
-  }
- 
-
 
   if (_capture.IsValidFrame()) {
     /* cv::Mat bgrThreshInput = _capture.CopyCaptureMat();
@@ -176,6 +161,6 @@ void BallProcessing::Periodic() {
       height_offset = height_goal - centerBall.y;
       std::cout << "Offset From CenterBall x,y =" << height_offset << "," << width_offset << std::endl;
     }
-    std::cout << "BallProcessing Periodic Ended" << std::endl;
   }
+  std::cout << "BallProcessing Periodic Ended" << std::endl;
 }

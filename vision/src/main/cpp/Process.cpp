@@ -1,5 +1,7 @@
 #include "Process.h"
 #include "Capture.h"
+//#include "Lock.h"
+
 #include <opencv2/opencv.hpp>
 #include "opencv2/objdetect.hpp"
 #include "opencv2/highgui.hpp"
@@ -26,7 +28,7 @@ using namespace std;
 Process::Process(Capture &capture) : _capture(capture) {}
 
 Capture &Process::GetCapture() {
-    return _capture;
+  return _capture;
 }
 
 void Process::CopyImgTrack(cv::Mat &imgTrack) {
@@ -44,25 +46,14 @@ void Process::CopyImgOriginal(cv::Mat &imgOriginal) {
 void Process::Init() {
   
   std::cout << "Process Init Started" << std::endl;
-  // Wait until Periodic() sends data
-  std::unique_lock<std::mutex> lk(_classMutex);
-  _conVar.wait(lk);
- 
-  // after the wait, we own the lock.
-  std::cout << "Worker thread is processing data\n";
-  
+
+  std::unique_lock<std::mutex> lock(classMutexLocking);
+  while (!_capture.GetReady()) condVar.wait(lock);
+
+
   _videoMode = _capture.GetVideoMode();
   _imgTrack = cv::Mat{_videoMode.height, _videoMode.width, CV_8UC3};
   _imgOriginal = cv::Mat{_videoMode.height, _videoMode.width, CV_8UC3};
- 
-  // Send data back to Init()
-  _processed = true;
-  std::cout << "Worker thread signals data processing completed\n";
- 
-  // Manual unlocking is done before notifying, to avoid waking up
-  // the waiting thread only to block again (see notify_one for details)
-  lk.unlock();
-  _conVar.notify_all();
   
 
   std::cout << "Process Init Ended" << std::endl;
