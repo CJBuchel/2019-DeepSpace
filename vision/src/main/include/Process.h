@@ -14,6 +14,9 @@
 #include <condition_variable>
 #include <mutex>
 
+extern std::mutex classMutexLocking;
+extern std::condition_variable condVar;
+
 class Process : public Runnable {
  public:
   virtual void Init() override;
@@ -24,10 +27,17 @@ class Process : public Runnable {
   void CopyImgTrack(cv::Mat &imgTrack);
   void CopyImgOriginal(cv::Mat &imgOriginal);
   std::mutex mutex();
+  bool GetProcessReady();
+  virtual bool GetDerivedReady() = 0;
+  
+
  protected:
   std::mutex _classMutex;
   Capture &_capture;
   cs::VideoMode _videoMode;
   cv::Mat _imgTrack;
   cv::Mat _imgOriginal;
+  bool _processReady = false;
+  bool _derivedReady = false;
+  
 };

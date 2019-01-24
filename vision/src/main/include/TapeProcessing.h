@@ -8,6 +8,7 @@ class TapeProcessing : public Process {
 
   void Init() override;
   void Periodic() override;
+  bool GetDerivedReady() override;
 
  private:
   cv::Mat imgHSV;

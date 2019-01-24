@@ -1,4 +1,8 @@
 #include "Display.h"
+#include "Capture.h"
+#include "BallProcessing.h"
+#include <condition_variable>
+#include <mutex>
 
 #include <opencv2/opencv.hpp>
 #include "opencv2/objdetect.hpp"
@@ -18,13 +22,19 @@
 Display::Display(Process &process) : _process(process) {}
 
 void Display::Init() {
-  std::cout << "Display Init Started" << std::endl;
-  Capture &capture = _process.GetCapture();
-  _videoMode = capture.GetVideoMode();
+  std::unique_lock<std::mutex> lock(classMutexLocking);
+  while (!_process.GetDerivedReady()) condVar.wait(lock);
 
-  // Set up output
-  _output = frc::CameraServer::GetInstance()->PutVideo("USB Camera", _videoMode.width, _videoMode.height);
-   std::cout << "Display Init Ended" << std::endl;
+  if(_process.GetDerivedReady() == true){
+
+
+    Capture &capture = _process.GetCapture();
+    _videoMode = capture.GetVideoMode();
+
+    // Set up output
+    _output = frc::CameraServer::GetInstance()->PutVideo("USB Camera", _videoMode.width, _videoMode.height);
+    std::cout << "Display Init Ended" << std::endl;
+  }
 }
 
 void Display::Periodic() {

@@ -42,19 +42,26 @@ void Process::CopyImgOriginal(cv::Mat &imgOriginal) {
 }
 
 
+bool Process::GetProcessReady() {
+  return _processReady;
+}
 
 void Process::Init() {
   
   std::cout << "Process Init Started" << std::endl;
 
   std::unique_lock<std::mutex> lock(classMutexLocking);
-  while (!_capture.GetReady()) condVar.wait(lock);
+  while (!_capture.GetCaptureReady()) condVar.wait(lock);
 
+  if(_capture.GetCaptureReady()){ //If True
 
-  _videoMode = _capture.GetVideoMode();
-  _imgTrack = cv::Mat{_videoMode.height, _videoMode.width, CV_8UC3};
-  _imgOriginal = cv::Mat{_videoMode.height, _videoMode.width, CV_8UC3};
-  
+    _videoMode = _capture.GetVideoMode();
+    _imgTrack = cv::Mat{_videoMode.height, _videoMode.width, CV_8UC3};
+    _imgOriginal = cv::Mat{_videoMode.height, _videoMode.width, CV_8UC3};
+
+    _processReady = true;
+    condVar.notify_all();
+  }
 
   std::cout << "Process Init Ended" << std::endl;
 }

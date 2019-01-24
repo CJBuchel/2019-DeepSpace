@@ -20,6 +20,10 @@
 using namespace cv;
 using namespace std;
 
+bool TapeProcessing::GetDerivedReady() {
+	return false;
+}
+
 void TapeProcessing::Init() {
 	std::cout << "TapeProcessing Init Started" << std::endl;
 	std::cout << "TapeProcessing Init Ended" << std::endl;

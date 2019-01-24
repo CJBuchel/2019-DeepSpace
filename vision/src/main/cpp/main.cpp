@@ -7,10 +7,10 @@
 #include <list>
 #include <condition_variable>
 #include <networktables/NetworkTableInstance.h>
+#include <mutex>
 
 std::mutex classMutexLocking;
 std::condition_variable condVar;
-
 
 #ifndef RUNNING_FRC_TESTS
 int main(int argc, char **argv) {

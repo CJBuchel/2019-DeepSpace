@@ -8,4 +8,10 @@ class BallProcessing : public Process {
 
   void Init() override;
   void Periodic() override;
+  bool GetBallProcessingReady();
+  virtual bool GetDerivedReady() override;
+
+ protected:
+  Process &_process;
+  bool _BallProcessingReady = false;
 };

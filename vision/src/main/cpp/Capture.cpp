@@ -30,6 +30,10 @@ Capture::Capture(int port) : _cam("USBCam", port) {}
 cs::VideoMode Capture::GetVideoMode() {
   return _videoMode;
 }
+//On your Marks
+bool Capture::GetCaptureReady() {
+  return _captureReady;
+}
 
 // Copiers
 void Capture::CopyCaptureMat(cv::Mat &captureMat) {
@@ -51,7 +55,6 @@ void Capture::Init() {
   std::cout << "Width: " << _videoMode.width << " Height: " << _videoMode.height << std::endl;
   _captureMat = cv::Mat::zeros(_videoMode.height, _videoMode.width, CV_8UC3);
 
-  std::unique_lock<std::mutex> lock(classMutexLocking);
   _captureReady = true;
   condVar.notify_all();
 
@@ -75,8 +78,4 @@ int Capture::GetPort() {
 
 int Capture::GetCode() {
   return code;
-}
-
-bool Capture::GetReady() {
-  return _captureReady;
 }

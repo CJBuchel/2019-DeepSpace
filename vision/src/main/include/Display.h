@@ -11,10 +11,14 @@ class Display : public Runnable {
   void Init() override;
   void Periodic() override;
 
+  bool GetDisplayInitReady();
+
  private:
   Process &_process;
   cs::CvSource _output;
   cs::VideoMode _videoMode;
   cv::Mat _imgTrack;
   cv::Mat _imgOriginal;
+  bool _DisplayInitReady = false;
+  Capture _capture;
 };

@@ -8,6 +8,9 @@
 
 #include "Runnable.h"
 
+extern std::mutex classMutexLocking;
+extern std::condition_variable condVar;
+
 class Capture : public Runnable {
  public:
   Capture(int port);
@@ -19,7 +22,7 @@ class Capture : public Runnable {
   void CopyCaptureMat(cv::Mat &captureMat);
   bool IsValidFrame();
   int GetCode();
-  bool GetReady();
+  bool GetCaptureReady();
 
  private:
   std::mutex _classMutex;
@@ -32,6 +35,5 @@ class Capture : public Runnable {
   int code;
 
   bool _captureReady = false;
-  bool _processReady = false;
   
 };
