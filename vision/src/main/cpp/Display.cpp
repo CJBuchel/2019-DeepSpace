@@ -25,13 +25,13 @@ void Display::Init() {
 
   // Set up output
   _outputCam0 = frc::CameraServer::GetInstance()->PutVideo("USB CameraTape", _videoMode.width, _videoMode.height);
-  _outputCam1 = frc::CameraServer::GetInstance()->PutVideo("USB CameraGamePeice", _videoMode.width, _videoMode.height);
+  // _outputCam1 = frc::CameraServer::GetInstance()->PutVideo("USB CameraGamePeice", _videoMode.width, _videoMode.height);
 }
 
 
 void Display::Periodic() {
   _process.CopyProcessedTrack(_imgProcessedTrack);
-  _process.CopyProcessedTrack(_imgProcessedTrackHatch);
+  // _process.CopyProcessedTrack(_imgProcessedTrackHatch);
   if (_capture.IsValidFrameThresh() && _capture.IsValidFrameTrack()) {
     if (_process.GetValidThresh() && _process.GetValidTrack()) {
       #ifdef __DESKTOP__
@@ -42,7 +42,7 @@ void Display::Periodic() {
     
       #else
       _outputCam0.PutFrame(_imgProcessedTrack);
-      _outputCam1.PutFrame(_imgProcessedTrackHatch);
+      // _outputCam1.PutFrame(_imgProcessedTrackHatch);
       #endif
     }
   }

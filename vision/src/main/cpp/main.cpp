@@ -37,24 +37,24 @@ int main(int argc, char **argv) {
   Capture captureGamePiece{0, 50};
   #else
   Capture capture{5, -100};
-  Capture captureGamePiece{4, 50};
+  Capture captureGamePiece{4, 35};
   #endif
-  // HatchProcessing hatchProcess{captureGamePiece};
-  BallProcessing ballProcess{capture};
+  HatchProcessing hatchProcess{captureGamePiece};
+  // BallProcessing ballProcess{capture};
   // TapeProcessing tapeProcess{capture};
   
-  Display displayBall{ballProcess};
-  // Display displayHatch{hatchProcess};
+  // Display displayBall{ballProcess};
+  Display displayHatch{hatchProcess};
   // Display displayTape{tapeProcess};
   
-  // vision.Run(capture);
+  vision.Run(capture);
   vision.Run(captureGamePiece);
-  vision.Run(ballProcess);
-  // vision.Run(hatchProcess);
+  // vision.Run(ballProcess);
+  vision.Run(hatchProcess);
   // vision.Run(tapeProcess);
 
-  vision.Run(displayBall);  //Displays Can't work togethor for shuffleboard
-  // vision.Run(displayHatch);
+  // vision.Run(displayBall);  //Displays Can't work togethor for shuffleboard
+  vision.Run(displayHatch);
   // vision.Run(displayTape);
 
 

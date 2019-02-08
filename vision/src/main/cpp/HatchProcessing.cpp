@@ -64,10 +64,9 @@ void HatchProcessing::Periodic() {
     double largestArea = 0.0;
     active_contour = -1;
     // Filters size for Reflective Hatch
-    // cv::inRange(_imgProcessing, cv::Scalar(15, 110, 110), cv::Scalar(40, 255, 255), _imgProcessedTrack); <- Debug Code
-    cv::inRange(_imgProcessing, cv::Scalar(15, 110, 100), cv::Scalar(34, 255, 255), _imgProcessing);
-
-    
+    cv::inRange(_imgProcessing, cv::Scalar(15, 110, 110), cv::Scalar(40, 255, 255), _imgProcessedTrack);// <- Debug Code
+    // cv::inRange(_imgProcessing, cv::Scalar(15, 110, 100), cv::Scalar(34, 255, 255), _imgProcessing);
+/*
     //cv::findContours(_imgProcessing, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
     //cv::findContours(_imgProcessedThresh, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS); // Is this redundant ?
     
@@ -92,7 +91,7 @@ void HatchProcessing::Periodic() {
         }
       }
     }
-
+*/
     // New Code for detecting Hatch, Will get rid of 60-70% of the code if done 
     /*
     std::vector<cv::Vec3f> circles;
@@ -119,8 +118,8 @@ void HatchProcessing::Periodic() {
          ++itc;
        }
     */
+   /*
     /// Detect edges using Canny
-    _imgProcessedTrack = cv::Mat::zeros(_videoMode.height, _videoMode.width, CV_8UC3);
     cv::Canny(_imgProcessing, _imgProcessing, hatch_thresh, hatch_thresh * 2);
 
     /// Find contours
@@ -153,13 +152,13 @@ void HatchProcessing::Periodic() {
       boundRectHatch[i] = cv::boundingRect(cv::Mat(hullHatch_poly[i]));
       cv::minEnclosingCircle((cv::Mat)hullHatch_poly[i], centerHatch[i], radiusHatch[i]);
     }
-    
-    _imgProcessedTrack = cv::Mat::zeros(_videoMode.height, _videoMode.width, CV_8UC3);
+
     /// Draw polygonal contour + bonding rects + circles
     for(int i = 0; i < hullHatch.size(); i++) {
       cv::Scalar color = cv::Scalar(rngHatch.uniform(0, 255), rngHatch.uniform(0,255), rngHatch.uniform(0,255));
       cv::drawContours(_imgProcessing, hullHatch_poly, i, color, 1, 8, std::vector<cv::Vec4i>(), 0, cv::Point());
       hatch_bounding_rect = cv::boundingRect(filteredContoursHatch[i]); // Find the bounding rectangle for biggest contour
+       _imgProcessedTrack = cv::Mat::zeros(_videoMode.height, _videoMode.width, CV_8UC3);
       cv::rectangle(_imgProcessedTrack, boundRectHatch[i].tl(), boundRectHatch[i].br(), color, 2, 8, 0);
       cv::circle(_imgProcessedTrack, centerHatch[i], (int)radiusHatch[i], color, 2, 8, 0);
     }
@@ -194,5 +193,6 @@ void HatchProcessing::Periodic() {
       std::stringstream offsetX;	offsetX << hatch_width_offset;
       cv::putText(_imgProcessedTrack, "xy(" + offsetX.str() + "," + offsetY.str() + ")", mcHatch[i] + cv::Point2f(-25,25), cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(255,0,255)); //text with distance and angle on target
     }
+    */
   }
 }
