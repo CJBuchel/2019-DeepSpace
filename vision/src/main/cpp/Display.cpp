@@ -15,7 +15,11 @@
 #include <chrono>
 #include <thread>
 
+#include "networktables/NetworkTableInstance.h"
+
 #include "devices/kinect.h"
+
+bool HatchLeftSide = true;
 
 Display::Display(Process &process) : _process(process), _capture(process.GetCapture()) {}
 
@@ -32,8 +36,10 @@ void Display::Init() {
 void Display::Periodic() {
   _process.CopyProcessedTrack(_imgProcessedTrack);
   // _process.CopyProcessedTrack(_imgProcessedTrackHatch);
+
   if (_capture.IsValidFrameThresh() && _capture.IsValidFrameTrack()) {
     if (_process.GetValidThresh() && _process.GetValidTrack()) {
+      // _capture.SetPort(HatchLeftSide ? 4 : 5);
       #ifdef __DESKTOP__
       if (_imgProcessedTrack.rows > 0) {
         imshow(_process.GetProcessType(), _imgProcessedTrack);
@@ -42,7 +48,8 @@ void Display::Periodic() {
     
       #else
       _outputCam0.PutFrame(_imgProcessedTrack);
-      // _outputCam1.PutFrame(_imgProcessedTrackHatch);
+      HatchLeftSideEntry.SetDouble(HatchLeftSide);
+      std::cout << "test thing" << std::endl;
       #endif
     }
   }

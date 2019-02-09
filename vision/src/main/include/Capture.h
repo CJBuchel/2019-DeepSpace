@@ -7,12 +7,20 @@
 #include <mutex>
 #include <condition_variable>
 
+#include "networktables/NetworkTable.h"
+#include "networktables/NetworkTableEntry.h"
+#include "networktables/NetworkTableInstance.h"
+
 class Capture : public Runnable {
  public:
   Capture(int port, int exposure);
   int GetPort();
   void Init() override;
   void Periodic() override;
+  
+  void SetPort(int port);
+
+  nt::NetworkTableEntry HatchLeftSideEntry;
 
   cs::VideoMode GetVideoMode();
   void CopyCaptureMat(cv::Mat &captureMat);

@@ -6,6 +6,7 @@
 #include <frc/SpeedControllerGroup.h>
 #include <frc/Spark.h>
 #include <frc/DoubleSolenoid.h>
+#include <frc/Servo.h>
 
 #include "CurtinCtre.h"
 #include "Gearbox.h"

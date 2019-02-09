@@ -4,6 +4,10 @@
 #include "Capture.h"
 #include "Runnable.h"
 
+#include "networktables/NetworkTable.h"
+#include "networktables/NetworkTableEntry.h"
+#include "networktables/NetworkTableInstance.h"
+
 #include <mutex>
 
 class Display : public Runnable {
@@ -12,6 +16,8 @@ class Display : public Runnable {
 
   void Init() override;
   void Periodic() override;
+
+  nt::NetworkTableEntry HatchLeftSideEntry;
 
  private:
   Process &_process;

@@ -8,6 +8,7 @@ using namespace curtinfrc;
 
 void Robot::RobotInit() {
   xbox = new XboxController(0);
+
   
   leftMotors[0] = new Spark(2);
   leftMotors[0]->SetInverted(false);

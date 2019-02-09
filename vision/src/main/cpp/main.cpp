@@ -6,7 +6,7 @@
 #include "Display.h"
 #include <iostream>
 #include <list>
-#include <networktables/NetworkTableInstance.h>
+//#include <networktables/NetworkTableInstance.h>
 
 #ifndef RUNNING_FRC_TESTS
 int main(int argc, char **argv) {
@@ -33,10 +33,10 @@ int main(int argc, char **argv) {
 
   VisionRunner vision;
   #ifdef __DESKTOP__
-  Capture capture{1, -100};
-  Capture captureGamePiece{0, 50};
+  Capture capture{0, -100};
+  CaptureLeft captureGamePiece{1, 50};
   #else
-  Capture capture{5, -100};
+  // Capture capture{5, -100};
   Capture captureGamePiece{4, 35};
   #endif
   HatchProcessing hatchProcess{captureGamePiece};
@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
   Display displayHatch{hatchProcess};
   // Display displayTape{tapeProcess};
   
-  vision.Run(capture);
+  // vision.Run(capture);
   vision.Run(captureGamePiece);
   // vision.Run(ballProcess);
   vision.Run(hatchProcess);

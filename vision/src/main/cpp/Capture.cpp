@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <iostream>
 
+#include "networktables/NetworkTableInstance.h"
+
 #include <cameraserver/CameraServer.h>
 #include <cscore.h>
 
@@ -49,9 +51,16 @@ bool Capture::IsValidFrameTrack() {
   return _isValidTrack;
 }
 
-
+void Capture::SetPort(int port) {
+  _cam = cs::UsbCamera{"USBCam",port};
+}
 
 void Capture::Init() {
+  auto inst = nt::NetworkTableInstance::GetDefault();
+  auto visionTable = inst.GetTable("VisionTracking");
+  auto table = visionTable->GetSubTable("HatchTracking");
+  HatchLeftSideEntry = table->GetEntry("Left Side"); 
+
   _sink.SetSource(_cam);
   _cam.SetResolution(640, 480);
 
@@ -61,7 +70,6 @@ void Capture::Init() {
   _videoMode = _cam.GetVideoMode();
   std::cout << "Width: " << _videoMode.width << " Height: " << _videoMode.height << std::endl;
   _captureMat = cv::Mat::zeros(_videoMode.height, _videoMode.width, CV_8UC3);
-  _initCondVar.notify_all();
 }
 
 void Capture::Periodic() {
