@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
   VisionRunner vision;
   #ifdef __DESKTOP__
   Capture capture{0, -100};
-  CaptureLeft captureGamePiece{1, 50};
+  Capture captureGamePiece{1, 50};
   #else
   // Capture capture{5, -100};
   Capture captureGamePiece{4, 35};

@@ -51,7 +51,7 @@ bool Capture::IsValidFrameTrack() {
   return _isValidTrack;
 }
 
-void Capture::SetPort(int port) {
+void Capture::SetCapturePort(int port) {
   _cam = cs::UsbCamera{"USBCam",port};
 }
 

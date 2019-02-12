@@ -18,7 +18,7 @@ class Capture : public Runnable {
   void Init() override;
   void Periodic() override;
   
-  void SetPort(int port);
+  void SetCapturePort(int port);
 
   nt::NetworkTableEntry HatchLeftSideEntry;
 
