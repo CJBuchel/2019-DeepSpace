@@ -139,7 +139,7 @@ void HatchProcessing::Periodic() {
     }
     
     
-    //_____________________Center Calcs______(Calculates the center from Border Box, And calculates X,Y Offset)_______ Ok.. it's suppose to calculate from borderbox, but not yet. using hull instead
+    //_____________________Center Calcs______(Calculates the center from Border Box, And calculates X,Y Offset)_______
     
     std::vector<cv::Moments> muHatch(hullHatchPoly.size()); // do we need this if we have mutex ? *
     for(int i = 0; i < hullHatchPoly.size(); i++) {
