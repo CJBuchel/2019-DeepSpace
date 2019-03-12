@@ -5,48 +5,43 @@
 #include <math.h>
 #include <iostream>
 
-using namespace frc;
-using namespace curtinfrc;
+double lastTimestamp;
 
 void Robot::RobotInit() {
-  xbox = new curtinfrc::controllers::XboxController(0);
+  lastTimestamp = frc::Timer::GetFPGATimestamp();
   
-  leftMotors[0] = new Spark(2);
+  leftMotors[0] = new curtinfrc::Talon(1);
   leftMotors[0]->SetInverted(false);
-  left = new Gearbox{ new curtinfrc::actuators::MotorVoltageController(new SpeedControllerGroup(*leftMotors[0])), nullptr};
+  left = new curtinfrc::Gearbox{ new curtinfrc::actuators::MotorVoltageController(new frc::SpeedControllerGroup(*leftMotors[0])), nullptr};
 
-  rightMotors[0] = new Spark(3);
+  rightMotors[0] = new curtinfrc::Talon(0);
   rightMotors[0]->SetInverted(true);
-  right = new Gearbox{ new curtinfrc::actuators::MotorVoltageController(new SpeedControllerGroup(*rightMotors[0])), nullptr};
+  right = new curtinfrc::Gearbox{ new curtinfrc::actuators::MotorVoltageController(new frc::SpeedControllerGroup(*rightMotors[0])), nullptr};
 
-  hatchEjector = new DoubleSolenoid(0, 1);
 
-  DrivetrainConfig drivetrainConfig{*left, *right};
-  drivetrain = new Drivetrain(drivetrainConfig);
+  curtinfrc::DrivetrainConfig drivetrainConfig{*left, *right};
+  drivetrain = new curtinfrc::Drivetrain(drivetrainConfig);
+  drivetrain->SetDefault(std::make_shared<DrivetrainManualStrategy>(*drivetrain, contGroup));
+  drivetrain->GetConfig().gyro->Reset();
+  drivetrain->StartLoop(100);
+
+  Register(drivetrain);
 }
 
 void Robot::AutonomousInit() {}
-void Robot::AutonomousPeriodic() {}
+void Robot::AutonomousPeriodic() {
+  double dt = frc::Timer::GetFPGATimestamp() - lastTimestamp;
+  lastTimestamp = frc::Timer::GetFPGATimestamp();
+
+  double offset = drivetrain->GetConfig().gyro->GetAngle();
+  offset += 0; // get angle from nt
+  Schedule(std::make_shared<DrivetrainAngleStrategy>(*drivetrain, curtinfrc::control::PIDGains("Drivetrain Align", 0.3, 0, 0.04), offset));
+
+  Update(dt);
+}
 
 void Robot::TeleopInit() {}
-void Robot::TeleopPeriodic() {
-  double leftSpeed = -xbox->GetAxis(1); // L Y axis
-  double rightSpeed = -xbox->GetAxis(5); // R Y axis
-
-  leftSpeed *= fabs(leftSpeed);
-  rightSpeed *= fabs(rightSpeed);
-
-  drivetrain->Set(leftSpeed, rightSpeed);
-
-  hatchEjector->Set(!xbox->GetButton(6) ? DoubleSolenoid::kForward : DoubleSolenoid::kReverse); // R bumper
-  // if (xbox->GetBumper(xbox->kRightHand)) {
-  //   solState++;
-  //   solState %= 2; //2;
-  //   hatchEjector->Set((bool)solState ? DoubleSolenoid::kForward : DoubleSolenoid::kReverse);
-  // }
-
-  // if (xbox->GetBumper(xbox->kLeftHand)) hatchEjector->Set(DoubleSolenoid::kReverse);
-}
+void Robot::TeleopPeriodic() {}
 
 void Robot::TestInit() {}
 void Robot::TestPeriodic() {}

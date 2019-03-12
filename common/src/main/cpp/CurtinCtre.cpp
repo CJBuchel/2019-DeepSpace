@@ -4,6 +4,28 @@
 
 using namespace curtinfrc;
 
+
+// TALON
+
+void Talon::StopMotor() {
+  Disable();
+}
+
+void Talon::PIDWrite(double output) {
+  Set(output);
+}
+
+double Talon::Get() const {
+  return _value;
+}
+
+// void Talon::ModifyConfig(std::function<void(Talon::Configuration &)> func) {
+//   Talon::Configuration config = SaveConfig();
+//   func(config);
+//   LoadConfig(config);
+// }
+
+
 // SRX
 
 void TalonSrx::StopMotor() {

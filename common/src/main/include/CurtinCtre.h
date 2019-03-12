@@ -4,6 +4,7 @@
 #pragma once
 
 #include <frc/SpeedController.h>
+#include <frc/Talon.h>
 #include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
 #include <ctre/phoenix/motorcontrol/can/VictorSPX.h>
 
@@ -13,6 +14,109 @@
 #include "actuators/VoltageController.h"
 
 namespace curtinfrc {
+
+  /**
+   * Curtin FRC Wrapper around the CTRE Talon. Old school.
+   */
+  class Talon : public curtinfrc::actuators::MotorVoltageController, public frc::SpeedController {
+   public:
+    using ControlMode = ctre::phoenix::motorcontrol::ControlMode;
+
+    /**
+     * Create a new Talon.
+     * 
+     * @param port The device ID of the Talon on the CAN Bus.
+     */
+    Talon(int port);
+    ~Talon();
+
+    /**
+     * Set the Talon Packet Update Rate in Hz
+     */
+    void SetUpdateRate(int hz);
+
+    /**
+     * Get the CAN Device ID of the Talon.
+     */
+    int GetPort();
+
+    /**
+     * Set or unset this Talon as 'inverted' for all calls to .Set().
+     */
+    void SetInverted(bool invert) override;
+
+    /**
+     * Get whether this Talon is inverted.
+     */
+    bool GetInverted() const override;
+
+    /**
+     * Stop the motor
+     */
+    void Disable() override;
+
+    /**
+     * Stop the motor
+     */
+    void StopMotor() override;
+
+    void PIDWrite(double output) override;
+
+    /**
+     * Set the speed of the Talon, in the range -1 Full Reverse, 0 Neutral and 1 Full Forward
+     * 
+     * @param speed The speed. -1 Full Reverse, 0 Neutral, 1 Full Forward 
+     */
+    void Set(double speed) override;
+    
+    /**
+     * Set the value of the Talon in a given control mode. 
+     * 
+     * @param mode The control mode of the Talon. See @ref ControlMode.
+     * @param value The value to set. Units dependent on value of mode.
+     */
+    void Set(ControlMode mode, double value);
+
+    /**
+     * Get the currently active control mode of the Talon.
+     * 
+     * @returns The control mode of the Talon. See @ref ControlMode.
+     */
+    ControlMode GetMode();
+
+    /**
+     * Get the current value of the Talon.
+     * 
+     * @returns The value of the motor controller, dependent on the active control mode.
+     */
+    double Get() const override;
+
+    // /**
+    //  * Load a Talonfiguration.
+    //  * 
+    //  * @param Configuration The Talonfiguration
+    //  */
+    // void LoadConfig(Configuration &config);
+
+    // /**
+    //  * Save (get) the current Talonfiguration
+    //  * 
+    //  * @returns The current Talonfiguration
+    //  */
+    // Configuration SaveConfig();
+
+    // /**
+    //  * Modify a Talonfiguration. This is the equivilent of calling @ref SaveConfig(), changing
+    //  * a value, followed by @ref LoadConfig(Configuration &).
+    //  * 
+    //  * @param func The Configuration function. This is a function that takes in a Configuration reference.
+    //  */
+    // void ModifyConfig(std::function<void(Configuration &)> func);
+    
+    int _port;
+    void *_handle;
+    double _value;
+  };
 
   /**
    * Curtin FRC Wrapper around the CTRE Talon SRX.

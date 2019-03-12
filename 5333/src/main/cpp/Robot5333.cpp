@@ -25,12 +25,12 @@ void Robot::RobotInit() {
 #else
   robotmap.drivetrain.leftGearbox.transmission->SetInverted(true);
 #endif
-  robotmap.lift.elevatorGearbox.transmission->SetInverted(true);
   robotmap.drivetrain.leftGearbox.encoder->ZeroEncoder();
   robotmap.drivetrain.rightGearbox.encoder->ZeroEncoder();
 
   drivetrain = new Drivetrain(robotmap.drivetrain.config, robotmap.drivetrain.gainsVelocity);
   drivetrain->SetDefault(std::make_shared<DrivetrainManualStrategy>(*drivetrain, robotmap.contGroup));
+  drivetrain->GetConfig().gyro->Reset();
   drivetrain->StartLoop(100);
   stratFOC = std::make_shared<DrivetrainFOCStrategy>(*drivetrain, robotmap.contGroup, robotmap.drivetrain.gainsFOC);
 
@@ -79,6 +79,12 @@ void Robot::RobotPeriodic() {
     else stratFOC->SetDone();
   }
 
+  if (robotmap.contGroup.GetButtonRise(ControlMap::tapeAlign)) {
+    double offset = drivetrain->GetConfig().gyro->GetAngle();
+    offset += 0; // get angle from nt
+    Schedule(std::make_shared<DrivetrainAngleStrategy>(*drivetrain, robotmap.drivetrain.gainsAlign, offset));
+  }
+  
   if (robotmap.contGroup.Get(ControlMap::liftGoalGround, controllers::Controller::ONRISE)) {
     Schedule(std::make_shared<LiftGotoStrategy>(*beElevator, ControlMap::liftSetpointGround));
 
@@ -97,7 +103,6 @@ void Robot::RobotPeriodic() {
   } else if (robotmap.contGroup.Get(ControlMap::liftGoalUpper2, controllers::Controller::ONRISE)) {
     Schedule(std::make_shared<LiftGotoStrategy>(*beElevator, ControlMap::liftSetpointUpper2));
   }
-  // Need to schedule stratPOV *
 
   // Redundant, as it can already be accessed on shuffleboard via nt, but ~
   frc::SmartDashboard::PutNumber("Hatch Distance", robotmap.controlSystem.hatchDistanceEntry.GetDouble(-1));
@@ -127,8 +132,7 @@ void Robot::AutonomousInit() {
 void Robot::AutonomousPeriodic() {}
 
 void Robot::TeleopInit() {}
-void Robot::TeleopPeriodic() {
-}
+void Robot::TeleopPeriodic() {}
 
 void Robot::TestInit() {}
 void Robot::TestPeriodic() {}

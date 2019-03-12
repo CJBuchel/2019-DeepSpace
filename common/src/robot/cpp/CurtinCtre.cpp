@@ -6,6 +6,47 @@ using namespace curtinfrc;
 using namespace ctre::phoenix::motorcontrol;
 
 
+// Talon
+
+inline Talon *NativeSpx(const Talon *srx) {
+  return static_cast<Talon *>(srx->_handle);
+}
+
+Talon::Talon(int port) : actuators::MotorVoltageController(this) {
+  _handle = (void *)new frc::Talon(port);
+  _port = port;
+}
+
+Talon::~Talon() {
+  delete NativeSpx(this);
+}
+
+int Talon::GetPort() {
+  return _port;
+}
+
+void Talon::SetInverted(bool invert) {
+  NativeSpx(this)->SetInverted(invert);
+}
+
+bool Talon::GetInverted() const {
+  return NativeSpx(this)->GetInverted();
+}
+
+void Talon::Disable() {
+  Set(ControlMode::Disabled, 0);
+}
+
+void Talon::Set(double speed) {
+  Set(ControlMode::PercentOutput, speed);
+}
+
+void Talon::Set(Talon::ControlMode mode, double value) {
+  NativeSpx(this)->Set(mode, value);
+  _value = value;
+}
+
+
 // Talon SRX
 
 inline can::TalonSRX *NativeSrx(const TalonSrx *srx) {

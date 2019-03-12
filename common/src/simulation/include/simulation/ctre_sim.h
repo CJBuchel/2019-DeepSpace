@@ -13,6 +13,17 @@ namespace simulation {
 
       bool inverted;
       double value;
+      curtinfrc::Talon::ControlMode mode = curtinfrc::Talon::ControlMode::Disabled;
+
+      int sensor_pos;
+      int sensor_vel;
+    };
+
+    struct srx_data {
+      int port;
+
+      bool inverted;
+      double value;
       curtinfrc::TalonSrx::ControlMode mode = curtinfrc::TalonSrx::ControlMode::Disabled;
 
       int sensor_pos;
@@ -21,7 +32,7 @@ namespace simulation {
       curtinfrc::TalonSrx::Configuration config;
     };
 
-    struct victor_data {
+    struct spx_data {
       int port;
 
       bool inverted;
@@ -32,7 +43,8 @@ namespace simulation {
     };
 
     static std::map<int, simulation::ctre::talon_data> &all_talons();
-    static std::map<int, simulation::ctre::victor_data> &all_victors();
+    static std::map<int, simulation::ctre::srx_data> &all_srxs();
+    static std::map<int, simulation::ctre::spx_data> &all_spxs();
   };
 
 }

@@ -4,8 +4,6 @@
 #include <frc/TimedRobot.h>
 #include <frc/XboxController.h>
 #include <frc/SpeedControllerGroup.h>
-#include <frc/Spark.h>
-#include <frc/Talon.h>
 #include <frc/DoubleSolenoid.h>
 #include "controllers/CurtinControllers.h"
 
@@ -13,7 +11,10 @@
 #include "Gearbox.h"
 #include "Drivetrain.h"
 
-class Robot : public frc::TimedRobot {
+#include "DriveStrategies.h"
+
+
+class Robot : public frc::TimedRobot, protected curtinfrc::StrategyController {
  public:
   void RobotInit() override;
 
@@ -26,11 +27,10 @@ class Robot : public frc::TimedRobot {
   void TestInit() override;
   void TestPeriodic() override;
 
-  curtinfrc::controllers::XboxController *xbox;
-  
-  frc::Spark *leftMotors[1], *rightMotors[1];
+  curtinfrc::controllers::XboxController xbox{0};
+  curtinfrc::controllers::SmartControllerGroup contGroup{xbox};
+
+  curtinfrc::Talon *leftMotors[1], *rightMotors[1];
   curtinfrc::Gearbox *left, *right;
   curtinfrc::Drivetrain *drivetrain;
-
-  frc::DoubleSolenoid *hatchEjector;
 };

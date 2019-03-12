@@ -49,9 +49,23 @@ void motor_window::render(cv::Mat &img) {
     }
     yorigin += 0.05;
   }
+  
+  auto srxs = ctre::all_srxs();
+  for (auto it = srxs.begin(); it != srxs.end(); it++) {
+    ControlMode mode = it->second.mode;
+    double       val  = it->second.value;
+    if (mode == ControlMode::PercentOutput) {
+      render_motor(img, yorigin, "SRX", it->second.port, true, val * 100);
+    } else if (mode == ControlMode::Current) {
+      render_motor(img, yorigin, "SRX", it->second.port, true, val, 0, 40, "A");
+    } else {
+      render_motor(img, yorigin, "SRX", it->second.port, ctre_to_string(mode, val));
+    }
+    yorigin += 0.05;
+  }
 
-  auto victors = ctre::all_victors();
-  for (auto it = victors.begin(); it != victors.end(); it++) {
+  auto spxs = ctre::all_spxs();
+  for (auto it = spxs.begin(); it != spxs.end(); it++) {
     ControlMode mode = it->second.mode;
     double       val  = it->second.value;
     if (mode == ControlMode::PercentOutput) {
